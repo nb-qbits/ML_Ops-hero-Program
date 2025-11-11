@@ -14,17 +14,18 @@ pipeline {
     }
 
     stage('Unit Tests') {
-      steps {
-        sh '''
-          python -m venv .venv && . .venv/bin/activate
-          pip install -r app/requirements.txt pytest
-          pytest -q
-        '''
-      }
-      post {
-        always { sh 'rm -rf .venv' }
-      }
-    }
+        steps {
+            sh '''
+            docker run --rm -v "$PWD":/app -w /app python:3.11-bullseye bash -lc "
+                python -m venv .venv && . .venv/bin/activate &&
+                pip install -r app/requirements.txt pytest &&
+                pytest -q
+            "
+            '''
+        }
+        post { always { sh 'rm -rf .venv' } }
+        }
+
 
     stage('Build Image') {
       steps {
