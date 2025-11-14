@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-cleaner
+  namespace: data-cleaner
+spec:
+  selector:
+    app: data-cleaner
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  type: ClusterIP

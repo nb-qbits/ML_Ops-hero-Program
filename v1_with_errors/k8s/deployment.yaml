@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-cleaner
+  namespace: data-cleaner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-cleaner
+  template:
+    metadata:
+      labels:
+        app: data-cleaner
+    spec:
+      containers:
+        - name: data-cleaner
+          image: ghcr.io/YOUR_GH_USER/data-cleaner:{{IMAGE_TAG}}
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet: { path: /health, port: 8000 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "500m", memory: "256Mi" }
