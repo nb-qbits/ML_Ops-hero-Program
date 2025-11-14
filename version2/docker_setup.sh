@@ -84,6 +84,27 @@ ensure_jenkins_python_tools() {
   "
 }
 
+ensure_jenkins_docker_access() {
+  if ! docker ps --format '{{.Names}}' | grep -qx "${JENKINS_CONTAINER}"; then
+    log "Jenkins container (${JENKINS_CONTAINER}) not running. Skipping docker CLI install."
+    return
+  fi
+
+  log "Installing docker CLI and wiring permissions inside ${JENKINS_CONTAINER}"
+  docker exec -u root "${JENKINS_CONTAINER}" bash -lc "
+    set -e
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io
+    groupadd -f docker
+    usermod -aG docker jenkins
+    chgrp docker /var/run/docker.sock || true
+    chmod g+rw /var/run/docker.sock || true
+  "
+
+  log "Restarting ${JENKINS_CONTAINER} to pick up docker group membership"
+  docker restart "${JENKINS_CONTAINER}"
+}
+
 verify_app() {
   log "Current v2 container status"
   docker ps --filter "name=${APP_CONTAINER}"
@@ -107,6 +128,7 @@ main() {
   deploy_v2_container
   patch_jenkins_network
   ensure_jenkins_python_tools
+  ensure_jenkins_docker_access
   verify_app
 
   log "Done. Jenkins + ngrok setup stays untouched; v2 app runs independently on port ${APP_PORT}."
