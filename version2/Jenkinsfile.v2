@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     REGISTRY = "${env.REGISTRY ?: 'ghcr.io'}"
-    IMAGE_REPO = "${env.IMAGE_REPO ?: 'ghcr.io/your-gh-user/data-cleaner'}"
+    IMAGE_REPO = "${env.IMAGE_REPO ?: 'ghcr.io/aravindsatyan/data-cleaner'}"
     IMAGE_TAG = "${env.BUILD_NUMBER}"
     DOCKER_BUILDKIT = "1"
   }
