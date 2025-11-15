@@ -117,8 +117,11 @@ ensure_jenkins_kubectl() {
     apt-get update
     apt-get install -y ca-certificates curl gnupg
     install -m 0755 -d /etc/apt/keyrings
-    curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    echo \"deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main\" > /etc/apt/sources.list.d/kubernetes.list
+    sed -i '/kubernetes/d' /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources || true
+    rm -f /etc/apt/sources.list.d/kubernetes.list
+    rm -f /etc/apt/keyrings/kubernetes-archive-keyring.gpg /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.31/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    echo \"deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.31/deb/ /\" > /etc/apt/sources.list.d/kubernetes.list
     apt-get update
     DEBIAN_FRONTEND=noninteractive apt-get install -y kubectl
   "
